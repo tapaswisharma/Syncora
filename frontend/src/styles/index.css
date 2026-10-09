@@ -1,0 +1,136 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * DBSynchro design tokens. Change the brand from here.
+ *   primary   #B6D0E2  PostgreSQL, primary actions, information
+ *   secondary #FADADD  Google Sheets, sync activity, warnings
+ *   success   #C1D0B5  healthy connections, completed syncs
+ * Pastels are used as fills with dark ink on top; the "-ink" tokens keep text accessible.
+ */
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-primary: #b6d0e2;
+  --color-primary-soft: #eef4f9;
+  --color-primary-ink: #1d4460;
+  --color-primary-strong: #4f7fa3;
+
+  --color-secondary: #fadadd;
+  --color-secondary-soft: #fdf2f3;
+  --color-secondary-ink: #7a2d3b;
+  --color-secondary-strong: #c46b7b;
+
+  --color-success: #c1d0b5;
+  --color-success-soft: #f1f5ee;
+  --color-success-ink: #2f4a24;
+  --color-success-strong: #6a8a57;
+
+  --color-danger: #b42318;
+  --color-danger-soft: #fdecea;
+  --color-danger-ink: #8a1c13;
+
+  --color-background: #f6f7f9;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f2f4f7;
+  --color-text: #17212b;
+  --color-muted: #5a6774;
+  --color-subtle: #8a96a3;
+  --color-border: #e2e7ec;
+  --color-border-strong: #cbd3db;
+  --color-ring: #6f9cbf;
+
+  --radius-card: 0.875rem;
+  --shadow-card: 0 1px 2px rgb(23 33 43 / 0.04), 0 1px 3px rgb(23 33 43 / 0.06);
+  --shadow-pop: 0 10px 30px -10px rgb(23 33 43 / 0.25);
+
+  --animate-fade-in: fade-in 160ms ease-out;
+  --animate-pop-in: pop-in 160ms ease-out;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes pop-in {
+    from { opacity: 0; transform: translateY(4px) scale(0.98); }
+    to { opacity: 1; transform: none; }
+  }
+}
+
+.dark {
+  --color-primary-soft: rgb(182 208 226 / 0.1);
+  --color-primary-ink: #cfe1ee;
+  --color-primary-strong: #8fb4cf;
+
+  --color-secondary-soft: rgb(250 218 221 / 0.09);
+  --color-secondary-ink: #f6cdd2;
+  --color-secondary-strong: #e9a3ae;
+
+  --color-success-soft: rgb(193 208 181 / 0.1);
+  --color-success-ink: #d3e0c8;
+  --color-success-strong: #a5bd93;
+
+  --color-danger: #f0857a;
+  --color-danger-soft: rgb(240 133 122 / 0.12);
+  --color-danger-ink: #f6b1a9;
+
+  --color-background: #0e1318;
+  --color-surface: #151c23;
+  --color-surface-muted: #1b242d;
+  --color-text: #e5ebf0;
+  --color-muted: #9aa7b3;
+  --color-subtle: #6d7a86;
+  --color-border: #25303a;
+  --color-border-strong: #33404c;
+  --color-ring: #8fb4cf;
+
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-pop: 0 12px 32px -12px rgb(0 0 0 / 0.6);
+  color-scheme: dark;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    @apply bg-background text-text font-sans;
+    font-feature-settings: "cv11", "ss01";
+  }
+  ::selection {
+    background: var(--color-primary);
+    color: #0f2433;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+  code, kbd, .font-mono {
+    font-feature-settings: normal;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border-strong) transparent;
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

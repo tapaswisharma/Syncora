@@ -1,0 +1,23 @@
+{
+  "name": "dbsynchro",
+  "version": "1.0.0",
+  "private": true,
+  "description": "DBSynchro: bidirectional Google Sheets ↔ PostgreSQL synchronization",
+  "author": "Tapaswi Vemuru",
+  "license": "MIT",
+  "workspaces": ["backend", "frontend"],
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "dev": "npm run dev --workspaces --if-present",
+    "dev:backend": "npm run dev --workspace backend",
+    "dev:frontend": "npm run dev --workspace frontend",
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "db:generate": "npm run db:generate --workspace backend",
+    "db:migrate": "npm run db:migrate --workspace backend",
+    "db:seed-demo": "npm run db:seed-demo --workspace backend",
+    "start": "npm run start --workspace backend"
+  }
+}
