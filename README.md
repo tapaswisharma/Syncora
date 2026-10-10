@@ -1,18 +1,12 @@
-# DBSynchro
+# Syncora
 
-**Bidirectional Google Sheets ↔ PostgreSQL Synchronization**
-Built by **Tapaswi Vemuru**.
+**Bidirectional synchronization between PostgreSQL and Google Sheets.**
 
-DBSynchro connects a PostgreSQL database to Google Sheets and keeps chosen tables and worksheets
-in step — in one direction or both. It browses schemas and tables, edits rows, maps columns,
-detects conflicting edits, and records every run so nothing changes silently.
+Syncora connects a PostgreSQL database to Google Sheets and keeps selected tables and worksheets in sync — in one direction or both. It supports database discovery, column mapping, conflict handling, sync history, and connection health checks.
 
-```
-                        DBSynchro
+Built by **[Tapaswi Vemuru](https://github.com/tapaswisharma)**.
 
-        PostgreSQL   ←───────────────→   Google Sheets
-         (any host)      mapped rows        (any sheet)
-```
+[**Live application**](https://syncora-two-xi.vercel.app) · [**API health**](https://syncora-api-duav.onrender.com/api/health) · [**Source code**](https://github.com/tapaswisharma/Syncora)
 
 ---
 
@@ -51,7 +45,7 @@ flowchart TD
     API --> PGS["pg connection pools<br/>(per user connection)"]
     API --> GAPI["Google Sheets + Drive APIs"]
 
-    DRZ --> META[("Supabase PostgreSQL<br/>DBSynchro metadata")]
+    DRZ --> META[("Supabase PostgreSQL<br/>Syncora metadata")]
     PGS --> USERDB[("User's PostgreSQL<br/>their own tables")]
     GAPI --> SHEETS[("Google Sheets")]
     SBA --- META
@@ -80,7 +74,7 @@ sequenceDiagram
     U->>API: Review conflicts and history
 ```
 
-**How change detection works.** After each successful run DBSynchro stores a hash of every
+**How change detection works.** After each successful run Syncora stores a hash of every
 synchronized row (its mapped values only). On the next run both sides are read and hashed again:
 
 | PostgreSQL vs baseline | Sheets vs baseline | Result |
@@ -93,7 +87,7 @@ synchronized row (its mapped values only). On the next run both sides are read a
 | row gone | changed | conflict (`DELETE_UPDATE`) |
 
 Rows that exist only on the destination side of a one-way sync and have never been synced are left
-untouched, so DBSynchro never deletes data it did not put there.
+untouched, so Syncora never deletes data it did not put there.
 
 ---
 
@@ -113,7 +107,7 @@ untouched, so DBSynchro never deletes data it did not put there.
 ## Project structure
 
 ```
-dbsynchro/
+Syncora/
 ├── backend/
 │   ├── drizzle/                    SQL migrations (generated)
 │   ├── src/
@@ -155,12 +149,12 @@ dbsynchro/
 
 ## Local setup
 
-Requirements: **Node.js 20+**, **npm 10+**, and a PostgreSQL database for DBSynchro's own metadata
+Requirements: **Node.js 20+**, **npm 10+**, and a PostgreSQL database for Syncora's own metadata
 (Supabase, or a local server).
 
 ```bash
-git clone <your-repo-url> dbsynchro
-cd dbsynchro
+git clone https://github.com/tapaswisharma/Syncora.git
+cd Syncora
 npm install                 # installs both workspaces
 
 cp backend/.env.example backend/.env
@@ -193,7 +187,7 @@ Useful commands:
 
 ### Running without credentials
 
-DBSynchro is usable before you have Supabase or Google set up:
+Syncora is usable before you have Supabase or Google set up:
 
 - Leave `SUPABASE_URL` empty in `backend/.env` and `VITE_SUPABASE_URL` empty in `frontend/.env`.
   The API then runs in **local development mode** (`AUTH_MODE=dev`): the login page offers
@@ -220,7 +214,7 @@ only ever reflects runs that actually happened.
 | `API_BASE_URL` | yes in prod | Public URL of the API; used to build the Google redirect URI. |
 | `FRONTEND_URL` | yes | Web app origin; used for CORS and the post-OAuth redirect. |
 | `CORS_ORIGINS` | no | Extra allowed origins, comma separated (e.g. Vercel previews). |
-| `DATABASE_URL` | yes | PostgreSQL URL for DBSynchro's metadata (Supabase connection string). |
+| `DATABASE_URL` | yes | PostgreSQL URL for Syncora's metadata (Supabase connection string). |
 | `DATABASE_SSL` | no | `true` when the metadata database requires SSL (Supabase: yes). |
 | `AUTH_MODE` | no | `supabase` or `dev`. Defaults to `supabase` when `SUPABASE_URL` is set. |
 | `SUPABASE_URL` | yes in prod | `https://<project-ref>.supabase.co`. |
@@ -265,16 +259,16 @@ passwords and the encryption key stay on the server.
    (see below). Supabase shows the callback URL to register in Google.
 5. **Authentication → URL Configuration**: set the Site URL to your frontend URL and add
    `http://localhost:5173` plus your deployed URL as redirect URLs.
-6. Run `npm run db:migrate` to create DBSynchro's tables in that database.
+6. Run `npm run db:migrate` to create Syncora's tables in that database.
 
-DBSynchro stores its own metadata (connections, syncs, runs, conflicts, activity) in this database
+Syncora stores its own metadata (connections, syncs, runs, conflicts, activity) in this database
 and isolates it by `user_id` on every query. You can additionally enable RLS on these tables if you
 ever query them directly from the browser; the API itself connects as the database owner.
 
 ## Google Cloud and OAuth setup
 
 The project needs **two** OAuth uses: signing in (handled by Supabase) and accessing the user's
-spreadsheets (handled by the DBSynchro API). One OAuth client can serve both.
+spreadsheets (handled by the Syncora API). One OAuth client can serve both.
 
 1. Create a project in the [Google Cloud console](https://console.cloud.google.com).
 2. **APIs & Services → Library**: enable **Google Sheets API** and **Google Drive API**.
@@ -282,8 +276,8 @@ spreadsheets (handled by the DBSynchro API). One OAuth client can serve both.
    scopes `userinfo.email`, `auth/spreadsheets` and `auth/drive.metadata.readonly`.
 4. **Credentials → Create credentials → OAuth client ID → Web application**:
    - Authorized redirect URIs:
-     - `http://localhost:4000/api/google/callback` (DBSynchro API, local)
-     - `https://<your-api-host>/api/google/callback` (DBSynchro API, deployed)
+     - `http://localhost:4000/api/google/callback` (Syncora API, local)
+     - `https://<your-api-host>/api/google/callback` (Syncora API, deployed)
      - `https://<project-ref>.supabase.co/auth/v1/callback` (Supabase sign-in)
    - Authorized JavaScript origins: `http://localhost:5173` and your deployed frontend URL.
 5. Put the client ID and secret in `backend/.env` (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`) and in
@@ -299,7 +293,7 @@ Add it under **Connections**, press **Test connection**, then browse it under **
   tables you write.
 - Hosted providers usually need SSL mode `require`.
 - In production, connections to private/loopback addresses are refused unless
-  `ALLOW_PRIVATE_DB_HOSTS=true`, so DBSynchro cannot be used to probe your internal network.
+  `ALLOW_PRIVATE_DB_HOSTS=true`, so Syncora cannot be used to probe your internal network.
 
 ---
 
@@ -424,7 +418,7 @@ npm run test --workspace backend
 
 | Symptom | Cause and fix |
 | --- | --- |
-| “Can't reach the DBSynchro API” | The API isn't running, or `VITE_API_BASE_URL` is wrong. |
+| “Can't reach the Syncora API” | The API isn't running, or `VITE_API_BASE_URL` is wrong. |
 | Login page says Supabase isn't configured | Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`, or use local development mode. |
 | “Your session has expired” immediately | The API's `SUPABASE_URL` points at a different project than the frontend. |
 | Requests blocked by CORS | Add the frontend origin to `FRONTEND_URL` or `CORS_ORIGINS`. |
